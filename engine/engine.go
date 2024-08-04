@@ -29,8 +29,11 @@ var (
 	// _defaultKey holds the default key for the engine.
 	_defaultKey *Key
 
-	// _defaultProxy holds the default proxy for the engine.
-	_defaultProxy proxy.Proxy
+	// _defaultUDPProxy holds the default proxy for the engine.
+	_defaultUDPProxy proxy.Proxy
+
+	// _defaultTCPProxy holds the default proxy for the engine.
+	_defaultTCPProxy proxy.Proxy
 
 	// _defaultDevice holds the default device for the engine.
 	_defaultDevice device.Device
@@ -165,8 +168,11 @@ func restAPI(k *Key) error {
 }
 
 func netstack(k *Key) (err error) {
-	if k.Proxy == "" {
-		return errors.New("empty proxy")
+	if k.UDPProxy == "" {
+		return errors.New("empty udp proxy")
+	}
+	if k.TCPProxy == "" {
+		return errors.New("empty tcp proxy")
 	}
 	if k.Device == "" {
 		return errors.New("empty device")
@@ -189,10 +195,13 @@ func netstack(k *Key) (err error) {
 		}
 	}()
 
-	if _defaultProxy, err = parseProxy(k.Proxy); err != nil {
+	if _defaultUDPProxy, err = parseProxy(k.UDPProxy); err != nil {
 		return
 	}
-	proxy.SetDialer(_defaultProxy)
+	if _defaultTCPProxy, err = parseProxy(k.TCPProxy); err != nil {
+		return
+	}
+	proxy.SetDialer(_defaultUDPProxy, _defaultTCPProxy)
 
 	if _defaultDevice, err = parseDevice(k.Device, uint32(k.MTU)); err != nil {
 		return
@@ -236,7 +245,7 @@ func netstack(k *Key) (err error) {
 	log.Infof(
 		"[STACK] %s://%s <-> %s://%s",
 		_defaultDevice.Type(), _defaultDevice.Name(),
-		_defaultProxy.Proto(), _defaultProxy.Addr(),
+		_defaultTCPProxy.Proto(), _defaultTCPProxy.Addr(),
 	)
 	return nil
 }

@@ -15,6 +15,8 @@ const (
 )
 
 var _defaultDialer Dialer = &Base{}
+var _defaultUDPDialer Dialer = &Base{}
+var _defaultTCPDialer Dialer = &Base{}
 
 type Dialer interface {
 	DialContext(context.Context, *M.Metadata) (net.Conn, error)
@@ -28,23 +30,24 @@ type Proxy interface {
 }
 
 // SetDialer sets default Dialer.
-func SetDialer(d Dialer) {
-	_defaultDialer = d
+func SetDialer(u, t Dialer) {
+	_defaultUDPDialer = u
+	_defaultTCPDialer = t
 }
 
 // Dial uses default Dialer to dial TCP.
 func Dial(metadata *M.Metadata) (net.Conn, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), tcpConnectTimeout)
 	defer cancel()
-	return _defaultDialer.DialContext(ctx, metadata)
+	return _defaultTCPDialer.DialContext(ctx, metadata)
 }
 
 // DialContext uses default Dialer to dial TCP with context.
 func DialContext(ctx context.Context, metadata *M.Metadata) (net.Conn, error) {
-	return _defaultDialer.DialContext(ctx, metadata)
+	return _defaultTCPDialer.DialContext(ctx, metadata)
 }
 
 // DialUDP uses default Dialer to dial UDP.
 func DialUDP(metadata *M.Metadata) (net.PacketConn, error) {
-	return _defaultDialer.DialUDP(metadata)
+	return _defaultUDPDialer.DialUDP(metadata)
 }

@@ -5,7 +5,8 @@ import "time"
 type Key struct {
 	MTU                      int           `yaml:"mtu"`
 	Mark                     int           `yaml:"fwmark"`
-	Proxy                    string        `yaml:"proxy"`
+	UDPProxy                 string        `yaml:"proxy"`
+	TCPProxy                 string        `yaml:"proxy"`
 	RestAPI                  string        `yaml:"restapi"`
 	Device                   string        `yaml:"device"`
 	LogLevel                 string        `yaml:"loglevel"`
